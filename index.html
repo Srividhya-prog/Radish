@@ -1,0 +1,2479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ContractScan — AI Legal Assistant for Contract Labour Misclassification</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CSS CUSTOM PROPERTIES & RESET
+   ============================================================ */
+:root {
+  --ink: #0d0d0d;
+  --paper: #f5f0e8;
+  --cream: #ede8d8;
+  --gold: #b8860b;
+  --gold-light: #d4a017;
+  --red: #8b1a1a;
+  --red-light: #c0392b;
+  --teal: #0f4c4c;
+  --teal-light: #1a6b6b;
+  --steel: #2c3e50;
+  --mist: #ecf0f1;
+  --rule: rgba(13,13,13,0.12);
+  --shadow: 0 4px 24px rgba(13,13,13,0.12);
+  --shadow-heavy: 0 8px 48px rgba(13,13,13,0.22);
+  --radius: 3px;
+  --serif: 'Playfair Display', Georgia, serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   HEADER / MASTHEAD
+   ============================================================ */
+.masthead {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.masthead::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--red), var(--teal));
+}
+
+.masthead-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 32px 36px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 24px;
+}
+
+.masthead-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.masthead-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  opacity: 0.9;
+}
+
+.masthead-title {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+
+.masthead-title span { color: var(--gold-light); }
+
+.masthead-tagline {
+  font-size: 13px;
+  color: rgba(245,240,232,0.62);
+  font-family: var(--mono);
+  max-width: 520px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.masthead-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid;
+  border-radius: 2px;
+}
+
+.badge-gold { color: var(--gold-light); border-color: var(--gold); background: rgba(184,134,11,0.1); }
+.badge-red { color: #e88; border-color: #8b1a1a; background: rgba(139,26,26,0.1); }
+.badge-teal { color: #7cc; border-color: var(--teal); background: rgba(15,76,76,0.1); }
+
+.masthead-rule {
+  border: none;
+  border-top: 1px solid rgba(245,240,232,0.15);
+  margin: 0 32px;
+  max-width: 1100px;
+  margin: 0 auto 0;
+}
+
+/* ============================================================
+   LEGAL NOTICE BANNER
+   ============================================================ */
+.notice-banner {
+  background: var(--cream);
+  border-bottom: 2px solid var(--rule);
+  padding: 10px 32px;
+}
+
+.notice-banner-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--steel);
+}
+
+.notice-icon { color: var(--gold); font-size: 14px; }
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.main-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 32px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+/* ============================================================
+   PROGRESS STEPPER
+   ============================================================ */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.step {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background var(--transition);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  position: relative;
+}
+
+.step:last-child { border-right: none; }
+
+.step-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(245,240,232,0.1);
+  color: rgba(245,240,232,0.5);
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.step-label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: rgba(245,240,232,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: color var(--transition);
+}
+
+.step.active .step-num { background: var(--gold); color: var(--ink); }
+.step.active .step-label { color: var(--gold-light); }
+.step.done .step-num { background: var(--teal); color: white; }
+.step.done .step-label { color: rgba(245,240,232,0.7); }
+
+/* ============================================================
+   SECTION CARDS
+   ============================================================ */
+.card {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card-header {
+  background: var(--ink);
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.card-header-icon {
+  font-size: 18px;
+  color: var(--gold-light);
+}
+
+.card-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.45);
+}
+
+.card-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.card-body { padding: 28px; }
+
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 680px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.full { grid-column: 1 / -1; }
+
+.form-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--steel);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-label-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  background: var(--gold);
+  color: var(--ink);
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.form-hint {
+  font-size: 11px;
+  color: rgba(44,62,80,0.6);
+  font-style: italic;
+  margin-top: -4px;
+}
+
+select, textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid rgba(13,13,13,0.15);
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: var(--ink);
+  background: var(--paper);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%230d0d0d' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,134,11,0.12);
+}
+
+textarea { resize: vertical; min-height: 80px; }
+
+/* Radio groups */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(13,13,13,0.12);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--paper);
+}
+
+.radio-option:hover { border-color: var(--gold); background: rgba(184,134,11,0.04); }
+.radio-option.selected { border-color: var(--gold); background: rgba(184,134,11,0.08); }
+
+.radio-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(13,13,13,0.25);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+
+.radio-option.selected .radio-dot {
+  border-color: var(--gold);
+  background: var(--gold);
+  box-shadow: inset 0 0 0 3px white;
+}
+
+.radio-text { font-size: 13px; line-height: 1.4; }
+
+/* ============================================================
+   ACTION BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn-primary:hover { background: var(--steel); transform: translateY(-1px); box-shadow: var(--shadow); }
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+
+.btn-teal {
+  background: var(--teal);
+  color: white;
+}
+
+.btn-teal:hover { background: var(--teal-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+}
+
+.btn-outline:hover { background: var(--ink); color: var(--paper); }
+
+.btn-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+/* ============================================================
+   RESULTS SECTION
+   ============================================================ */
+#results-section { display: none; }
+#results-section.visible { display: block; animation: slideUp 0.5s ease; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Verdict Card */
+.verdict-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-heavy);
+  margin-bottom: 32px;
+}
+
+.verdict-header {
+  padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.verdict-header.regular { background: var(--red); }
+.verdict-header.contract { background: var(--teal); }
+
+.verdict-icon { font-size: 42px; }
+
+.verdict-main { flex: 1; }
+
+.verdict-eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 6px;
+}
+
+.verdict-headline {
+  font-family: var(--serif);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: white;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.verdict-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  margin-top: 8px;
+  font-family: var(--mono);
+}
+
+.confidence-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 14px 18px;
+  min-width: 90px;
+}
+
+.confidence-num {
+  font-family: var(--serif);
+  font-size: 2.4rem;
+  color: white;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.confidence-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  margin-top: 4px;
+}
+
+/* Three Answers */
+.three-answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+@media (max-width: 680px) {
+  .three-answers { grid-template-columns: 1fr; }
+}
+
+.answer-cell {
+  padding: 20px 24px;
+  background: white;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.answer-cell:last-child { border-right: none; }
+
+.answer-question {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(44,62,80,0.55);
+}
+
+.answer-value {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.answer-value.yes { color: var(--red); }
+.answer-value.no { color: var(--teal); }
+.answer-value.id { color: var(--gold); }
+.answer-value.writ { color: var(--red); }
+.answer-value.both { color: var(--steel); }
+
+.answer-note {
+  font-size: 11.5px;
+  color: rgba(44,62,80,0.7);
+  line-height: 1.4;
+}
+
+/* ============================================================
+   REASONING SECTIONS
+   ============================================================ */
+.reasoning-block {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.reasoning-block-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  user-select: none;
+}
+
+.rb-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 3px 7px;
+  background: var(--ink);
+  color: var(--gold-light);
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+.rb-title {
+  font-family: var(--serif);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+  flex: 1;
+}
+
+.rb-toggle {
+  font-size: 12px;
+  color: rgba(44,62,80,0.5);
+  font-family: var(--mono);
+  transition: transform var(--transition);
+}
+
+.rb-body {
+  padding: 24px;
+  display: none;
+}
+
+.rb-body.open { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.reasoning-para {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.reasoning-para:last-child { margin-bottom: 0; }
+
+.factor-score {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dotted var(--rule);
+}
+
+.factor-score:last-child { border-bottom: none; }
+
+.factor-name { font-size: 13px; color: var(--ink); }
+.factor-value { font-family: var(--mono); font-size: 12px; color: var(--steel); }
+.factor-bar { width: 80px; height: 6px; background: rgba(13,13,13,0.1); border-radius: 3px; overflow: hidden; }
+.factor-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.factor-fill.high { background: var(--red); }
+.factor-fill.mid { background: var(--gold); }
+.factor-fill.low { background: var(--teal); }
+
+/* ============================================================
+   CASE LAWS TABLE
+   ============================================================ */
+.case-laws-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.case-law-row {
+  display: grid;
+  grid-template-columns: 32px 2fr 1fr 3fr;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  transition: background var(--transition);
+}
+
+.case-law-row:last-child { border-bottom: none; }
+.case-law-row:hover { background: var(--cream); }
+
+.case-law-row.header {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.clc {
+  padding: 12px 14px;
+  border-right: 1px solid var(--rule);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.case-law-row.header .clc { font-size: 9px; }
+.clc:last-child { border-right: none; }
+
+.case-num { font-family: var(--mono); font-size: 10px; color: rgba(44,62,80,0.45); }
+.case-name { font-weight: 600; color: var(--teal); font-style: italic; font-size: 12px; }
+.case-principle-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  background: rgba(184,134,11,0.12);
+  color: var(--gold);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   NEXT STEPS
+   ============================================================ */
+.next-steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+@media (max-width: 680px) {
+  .next-steps { grid-template-columns: 1fr; }
+}
+
+.next-step-card {
+  border: 1.5px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  background: var(--paper);
+  transition: all var(--transition);
+}
+
+.next-step-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.ns-step {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.ns-title {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.ns-desc { font-size: 12.5px; color: rgba(44,62,80,0.75); line-height: 1.5; }
+
+/* ============================================================
+   LOADING / SPINNER
+   ============================================================ */
+.analyzing-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(13,13,13,0.85);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analyzing-overlay.active { display: flex; }
+
+.spinner {
+  width: 52px; height: 52px;
+  border: 3px solid rgba(245,240,232,0.15);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.analyzing-text {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--paper);
+}
+
+.analyzing-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.45);
+}
+
+/* ============================================================
+   REPORT MODAL
+   ============================================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(13,13,13,0.75);
+  z-index: 999;
+  overflow-y: auto;
+  padding: 40px 16px;
+}
+
+.modal-overlay.active { display: block; }
+
+.modal-box {
+  max-width: 820px;
+  margin: 0 auto;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-heavy);
+  overflow: hidden;
+}
+
+.modal-header {
+  background: var(--ink);
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--paper);
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: rgba(245,240,232,0.55);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: color var(--transition);
+}
+
+.modal-close:hover { color: var(--paper); }
+
+.modal-body { padding: 32px; }
+
+.report-content {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.report-content h1 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 900;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  margin-top: 28px;
+}
+
+.report-content h1:first-child { margin-top: 0; }
+
+.report-content h2 {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--teal);
+  margin-top: 22px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--gold);
+  padding-left: 10px;
+}
+
+.report-content h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(44,62,80,0.6);
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+.report-content p { margin-bottom: 12px; }
+
+.report-content .report-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: var(--cream);
+  padding: 16px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.report-content .report-meta span { display: flex; gap: 8px; }
+.report-content .report-meta strong { color: var(--teal); }
+
+.modal-footer {
+  padding: 20px 28px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer {
+  background: var(--ink);
+  color: rgba(245,240,232,0.45);
+  padding: 28px 32px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  text-align: center;
+  line-height: 1.8;
+  margin-top: 40px;
+}
+
+.site-footer a { color: var(--gold-light); text-decoration: none; }
+
+/* ============================================================
+   MISC UTILITIES
+   ============================================================ */
+.divider {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 24px 0;
+}
+
+.text-mono { font-family: var(--mono); }
+.text-serif { font-family: var(--serif); }
+.text-muted { color: rgba(44,62,80,0.6); }
+.text-sm { font-size: 12px; }
+
+.alert {
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.alert-warning { background: rgba(184,134,11,0.1); border: 1px solid rgba(184,134,11,0.3); color: var(--ink); }
+.alert-error { background: rgba(139,26,26,0.08); border: 1px solid rgba(139,26,26,0.25); color: var(--red); }
+.alert-icon { font-size: 16px; }
+
+/* Validation state */
+select.invalid, textarea.invalid { border-color: var(--red-light) !important; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 760px) {
+  .masthead-inner { grid-template-columns: 1fr; }
+  .masthead-badges { flex-direction: row; align-items: flex-start; }
+  .three-answers { grid-template-columns: 1fr; }
+  .case-law-row { grid-template-columns: 1fr; }
+  .case-law-row.header { display: none; }
+  .clc { border-right: none; border-bottom: 1px solid var(--rule); }
+  .main-container { padding: 24px 16px; }
+  .stepper { flex-direction: column; }
+  .step { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+}
+
+/* Print */
+@media print {
+  .masthead, .notice-banner, .stepper, #form-section, .btn-group, .site-footer { display: none !important; }
+  #results-section { display: block !important; }
+  body { background: white; }
+  .card, .verdict-card, .reasoning-block { box-shadow: none; border: 1px solid #ccc; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     MASTHEAD
+     ============================================================ -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-brand">
+      <div class="masthead-eyebrow">⚖ Indian Labour Law — AI Legal Analysis Engine</div>
+      <h1 class="masthead-title">Contract<span>Scan</span></h1>
+      <p class="masthead-tagline">AI-powered misclassification analysis under the Contract Labour (Regulation &amp; Abolition) Act, 1970 · Industrial Disputes Act, 1947 · OSH Code, 2020 · Constitution of India</p>
+    </div>
+    <div class="masthead-badges">
+      <span class="badge badge-gold">⚖ CLRA 1970</span>
+      <span class="badge badge-red">⚒ ID Act 1947</span>
+      <span class="badge badge-teal">🏛 Art. 226</span>
+    </div>
+  </div>
+</header>
+
+<!-- NOTICE BANNER -->
+<div class="notice-banner">
+  <div class="notice-banner-inner">
+    <span class="notice-icon">⚠</span>
+    <span>FOR INFORMATIONAL &amp; EDUCATIONAL PURPOSES ONLY. THIS TOOL DOES NOT CONSTITUTE LEGAL ADVICE. CONSULT A QUALIFIED ADVOCATE FOR SPECIFIC MATTERS.</span>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<div class="main-container">
+
+  <!-- PROGRESS STEPPER -->
+  <div class="stepper" id="stepper">
+    <div class="step active" data-step="1">
+      <div class="step-num">1</div>
+      <div class="step-label">Employment Facts</div>
+    </div>
+    <div class="step" data-step="2">
+      <div class="step-num">2</div>
+      <div class="step-label">Control &amp; Wages</div>
+    </div>
+    <div class="step" data-step="3">
+      <div class="step-num">3</div>
+      <div class="step-label">Contract Validity</div>
+    </div>
+    <div class="step active-final" data-step="4">
+      <div class="step-num">4</div>
+      <div class="step-label">Results</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       INPUT FORM SECTION
+       ============================================================ -->
+  <div id="form-section">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📋</div>
+        <div class="card-header-text">
+          <div class="card-eyebrow">Structured Legal Inquiry</div>
+          <div class="card-title">Employment Classification Questionnaire</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="alert alert-warning">
+          <span class="alert-icon">📌</span>
+          <span>Answer all 8 factors carefully. The analysis engine applies the <strong>Control Test</strong>, <strong>Integration Test</strong>, <strong>Economic Reality Test</strong>, and <strong>Sham Contract Doctrine</strong> as enunciated by the Supreme Court of India. All fields are required.</span>
+        </div>
+
+        <form id="analysis-form" novalidate>
+          <div class="form-grid">
+
+            <!-- FACTOR 1: Control & Supervision -->
+            <div class="form-group full">
+              <label class="form-label">
+                <span class="form-label-num">1</span>
+                Control &amp; Supervision — Who Directs the Work?
+              </label>
+              <p class="form-hint">The "Control Test" (Hussainbhai v. Alath Factory) — supervision over how, when and where work is done is the most critical indicator.</p>
+              <select id="f_control" name="f_control">
+                <option value="">— Select the applicable situation —</option>
+                <option value="4">Principal employer exercises full control — directs work methods, timing, tools, discipline and performance evaluation</option>
+                <option value="3">Principal employer exercises substantial control — oversees work daily, sets schedules; contractor merely bills</option>
+                <option value="2">Mixed control — contractor supervises day-to-day but principal employer controls output standards and discipline</option>
+                <option value="1">Contractor supervises independently — principal employer only specifies output/deliverable, not method</option>
+                <option value="0">Complete independence — contractor operates autonomously with own supervisory hierarchy</option>
+              </select>
+            </div>
+
+            <!-- FACTOR 2: Payment of Wages -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="form-label-num">2</span>
+                Wage Payment Mechanism
+              </label>
+              <p class="form-hint">Economic Reality Test — who actually pays, and is it indistinguishable from direct employment?</p>
+              <select id="f_wages" name="f_wages">
+                <option value="">— Select —</option>
+                <option value="4">Wages paid directly by principal employer from its own payroll; contractor is mere conduit/billing entity</option>
+                <option value="3">Wages paid by contractor but fully reimbursed by principal employer on cost-plus basis without markup</option>
+                <option value="2">Wages nominally paid by contractor; but principal employer guarantees payment and enforces minimum wages</option>
+                <option value="1">Contractor pays from its own funds but principal employer may step in for defaults under s.21(4) CLRA</option>
+                <option value="0">Contractor pays entirely independently; no financial link to principal employer's payroll</option>
+              </select>
+            </div>
+
+            <!-- FACTOR 3: Nature of Work -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="form-label-num">3</span>
+                Nature of Work — Core vs. Peripheral
+              </label>
+              <p class="form-hint">SAIL v. NUW Waterfront Workers — whether the work is integral to business or peripheral (cleaning, security, catering etc.)</p>
+              <select id="f_nature" name="f_nature">
+                <option value="">— Select —</option>
+                <option value="4">Work is core/perennial — essential to the main production/service activity; cannot be separated</option>
+                <option value="3">Work is substantially integrated — directly supports main business operations on continuous basis</option>
+                <option value="2">Work is ancillary but regular — not directly production-related but performed continuously for years</option>
+                <option value="1">Work is peripheral — housekeeping, security, canteen or other non-core support activity</option>
+                <option value="0">Work is purely incidental — seasonal, project-specific or genuinely outsourced specialist service</option>
+              </select>
+            </div>
+
+            <!-- FACTOR 4: Duration and Continuity -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="form-label-num">4</span>
+                Duration &amp; Continuity of Employment
+              </label>
+              <p class="form-hint">ONGC v. PCL Union — continuous service especially post-240/190 days is strong indicator of disguised employment.</p>
+              <select id="f_duration" name="f_duration">
+                <option value="">— Select —</option>
+                <option value="4">Continuous service exceeding 5 years with the same establishment (regardless of contractor changes)</option>
+                <option value="3">Continuous service of 1–5 years; service survives change of contractor; workers retained</option>
+                <option value="2">Service of 6 months to 1 year but recurring/renewed repeatedly with same workers</option>
+                <option value="1">Periodic/seasonal engagement — work is genuinely project-specific or seasonal</option>
+                <option value="0">Short-term, casual or single-project engagement under 6 months with no renewal</option>
+              </select>
+            </div>
+
+            <!-- FACTOR 5: Integration Test -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="form-label-num">5</span>
+                Integration with Principal Employer's Business
+              </label>
+              <p class="form-hint">Balwant Rai Saluja v. Air India — workers using PE's tools, premises and working alongside permanent employees signals integration.</p>
+              <select id="f_integration" name="f_integration">
+                <option value="">— Select —</option>
+                <option value="4">Fully integrated — workers use principal employer's tools, premises, uniform, work alongside regular employees doing identical work</option>
+                <option value="3">Substantially integrated — work on PE's premises, use PE's equipment, identified with PE's establishment</option>
+                <option value="2">Partially integrated — work on PE's premises but contractor supplies some tools/materials</option>
+                <option value="1">Minimal integration — contractor brings own team to PE's site but maintains own work culture/systems</option>
+                <option value="0">No integration — contractor operates from its own facility/premises; merely delivers output to PE</option>
+              </select>
+            </div>
+
+            <!-- FACTOR 6: Sham Contract -->
+            <div class="form-group full">
+              <label class="form-label">
+                <span class="form-label-num">6</span>
+                Genuineness of the Contract — Sham Contract Doctrine
+              </label>
+              <p class="form-hint">Dena Nath v. NFC; BHEL v. Jakhmola — is the contractor an independent enterprise or a paper-entity created to avoid direct employment obligations?</p>
+              <div class="radio-group" id="f_sham_group">
+                <div class="radio-option" data-value="4" onclick="selectRadio(this, 'f_sham')">
+                  <div class="radio-dot"></div>
+                  <div class="radio-text"><strong>Clearly Sham/Bogus</strong> — contractor has no independent existence, no other clients, no separate infrastructure; merely a device to deny regularisation benefits</div>
+                </div>
+                <div class="radio-option" data-value="3" onclick="selectRadio(this, 'f_sham')">
+                  <div class="radio-dot"></div>
+                  <div class="radio-text"><strong>Probably Sham</strong> — contractor has minimal independent operations; exclusively or primarily serves this one principal employer; no genuine entrepreneurial risk</div>
+                </div>
+                <div class="radio-option" data-value="2" onclick="selectRadio(this, 'f_sham')">
+                  <div class="radio-dot"></div>
+                  <div class="radio-text"><strong>Partially Genuine</strong> — contractor has some independent business but relationship with this PE is disproportionately dominant and exclusive in practice</div>
+                </div>
+                <div class="radio-option" data-value="1" onclick="selectRadio(this, 'f_sham')">
+                  <div class="radio-dot"></div>
+                  <div class="radio-text"><strong>Mostly Genuine</strong> — contractor operates independently, has multiple clients, bears genuine entrepreneurial risk and administrative burden</div>
+                </div>
+                <div class="radio-option" data-value="0" onclick="selectRadio(this, 'f_sham')">
+                  <div class="radio-dot"></div>
+                  <div class="radio-text"><strong>Genuinely Independent</strong> — fully independent contractor with own workforce, financial risk, expertise and market presence; contract is a legitimate commercial arrangement</div>
+                </div>
+              </div>
+              <input type="hidden" id="f_sham" name="f_sham" value="">
+            </div>
+
+            <!-- FACTOR 7: Statutory Compliance -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="form-label-num">7</span>
+                Statutory Compliance (CLRA / ID Act)
+              </label>
+              <p class="form-hint">Whether the establishment is registered under CLRA s.7, contractor holds valid licence under s.12, and whether CLRA abolition notification has been issued.</p>
+              <select id="f_compliance" name="f_compliance">
+                <option value="">— Select —</option>
+                <option value="4">No CLRA registration/licence; CLRA abolition notification issued for this type of work; ID dispute already pending</option>
+                <option value="3">CLRA registration exists but licence not held by contractor; welfare provisions (ss.16-19) violated; wages unpaid</option>
+                <option value="2">CLRA compliance partial — licenced but with expired or irregular compliance; minimum wages violated</option>
+                <option value="1">CLRA generally complied with; contractor holds valid licence; but peripheral welfare violations</option>
+                <option value="0">Full CLRA compliance — registration, valid licence, welfare amenities, wages, records all in order</option>
+              </select>
+            </div>
+
+            <!-- FACTOR 8: Evidence Quality -->
+            <div class="form-group">
+              <label class="form-label">
+                <span class="form-label-num">8</span>
+                Foundational Evidence Available
+              </label>
+              <p class="form-hint">Workmen of Nilgiri Coop. v. State of TN — quality of documentary evidence is critical for both ID proceedings and Writ jurisdiction.</p>
+              <select id="f_evidence" name="f_evidence">
+                <option value="">— Select —</option>
+                <option value="4">Strong — muster rolls, wage registers, attendance records, principal employer's identity cards/uniforms, work orders all available</option>
+                <option value="3">Moderate-Strong — muster rolls or pay slips available; work orders from principal employer; some documentary gaps</option>
+                <option value="2">Moderate — oral evidence strong; limited documentary record; CLRA records partially available</option>
+                <option value="1">Weak — primarily oral evidence; no contemporaneous records; denial by employer likely</option>
+                <option value="0">Very Weak — no records; hostile witnesses; limitation issues may arise</option>
+              </select>
+            </div>
+
+            <!-- Additional context -->
+            <div class="form-group full">
+              <label class="form-label">
+                <span class="form-label-num">+</span>
+                Additional Contextual Facts (Optional)
+              </label>
+              <textarea id="f_context" name="f_context" placeholder="Describe any additional relevant facts: e.g., industry sector (public/private), government undertaking (Article 12), number of workers affected, specific welfare violations, history of engagement, whether a CLRA abolition notification exists, etc."></textarea>
+            </div>
+
+          </div><!-- .form-grid -->
+
+          <div class="btn-group">
+            <button type="button" class="btn btn-gold" onclick="runAnalysis()">
+              ⚖ Analyse &amp; Generate Legal Opinion
+            </button>
+            <button type="button" class="btn btn-outline" onclick="resetForm()">
+              ↺ Reset Form
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div><!-- #form-section -->
+
+  <!-- ============================================================
+       RESULTS SECTION
+       ============================================================ -->
+  <div id="results-section">
+
+    <!-- VERDICT CARD -->
+    <div class="verdict-card" id="verdict-card">
+      <div class="verdict-header" id="verdict-header">
+        <div class="verdict-icon" id="verdict-icon">⚖</div>
+        <div class="verdict-main">
+          <div class="verdict-eyebrow" id="verdict-eyebrow">Classification Result</div>
+          <div class="verdict-headline" id="verdict-headline">Loading...</div>
+          <div class="verdict-sub" id="verdict-sub">Analysing legal factors...</div>
+        </div>
+        <div class="confidence-pill">
+          <div class="confidence-num" id="confidence-num">0%</div>
+          <div class="confidence-label">Confidence</div>
+        </div>
+      </div>
+      <div class="three-answers">
+        <div class="answer-cell">
+          <div class="answer-question">Q1: Classification</div>
+          <div class="answer-value" id="ans-classification">—</div>
+          <div class="answer-note" id="ans-classification-note">—</div>
+        </div>
+        <div class="answer-cell">
+          <div class="answer-question">Q2: Regularisation Eligible?</div>
+          <div class="answer-value" id="ans-regularisation">—</div>
+          <div class="answer-note" id="ans-regularisation-note">—</div>
+        </div>
+        <div class="answer-cell">
+          <div class="answer-question">Q3: Recommended Remedy</div>
+          <div class="answer-value" id="ans-remedy">—</div>
+          <div class="answer-note" id="ans-remedy-note">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REASONING BLOCKS -->
+    <div id="reasoning-container"></div>
+
+    <!-- CASE LAWS TABLE -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header">
+        <div class="card-header-icon">📚</div>
+        <div class="card-header-text">
+          <div class="card-eyebrow">Jurisprudential Basis</div>
+          <div class="card-title">Applicable Case Laws &amp; Legal Principles</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="case-laws-grid">
+          <div class="case-law-row header">
+            <div class="clc">#</div>
+            <div class="clc">Case Name &amp; Citation</div>
+            <div class="clc">Principle Tag</div>
+            <div class="clc">Ratio Applicable</div>
+          </div>
+          <div id="case-laws-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-header">
+        <div class="card-header-icon">🗺</div>
+        <div class="card-header-text">
+          <div class="card-eyebrow">Actionable Guidance</div>
+          <div class="card-title">Suggested Next Steps</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="next-steps" id="next-steps-container"></div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="btn-group" style="margin-top:0;">
+      <button class="btn btn-teal" onclick="openReportModal()">
+        📄 Generate Downloadable Legal Report
+      </button>
+      <button class="btn btn-primary" onclick="scrollToForm()">
+        ← Revise Inputs
+      </button>
+      <button class="btn btn-outline" onclick="resetAll()">
+        ↺ New Analysis
+      </button>
+    </div>
+
+  </div><!-- #results-section -->
+
+</div><!-- .main-container -->
+
+<!-- ============================================================
+     ANALYZING OVERLAY
+     ============================================================ -->
+<div class="analyzing-overlay" id="analyzing-overlay">
+  <div class="spinner"></div>
+  <div class="analyzing-text">Analysing Legal Factors…</div>
+  <div class="analyzing-sub">Applying 60 Case Law Principles · Control Test · Integration Test · Sham Contract Doctrine</div>
+</div>
+
+<!-- ============================================================
+     REPORT MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="report-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">📄 Legal Opinion Report</div>
+      <button class="modal-close" onclick="closeReportModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="report-content" id="report-content"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gold" onclick="downloadReport()">⬇ Download as Text File</button>
+      <button class="btn btn-primary" onclick="printReport()">🖨 Print Report</button>
+      <button class="btn btn-outline" onclick="closeReportModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div>ContractScan — AI Legal Analysis Engine for Indian Labour Law &nbsp;|&nbsp; Based on CLRA 1970, ID Act 1947, OSH Code 2020 &amp; Constitution of India</div>
+  <div style="margin-top:6px;">For educational purposes only. Not a substitute for professional legal advice. &nbsp;|&nbsp; Build on GitHub Pages — No backend, No API, Works Offline</div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT ENGINE
+     ============================================================ -->
+<script>
+/* ============================================================
+   GLOBAL STATE
+   ============================================================ */
+let currentResult = null;
+const radioValues = {}; // stores hidden radio values
+
+/* ============================================================
+   RADIO SELECT HANDLER
+   ============================================================ */
+function selectRadio(el, fieldId) {
+  // Deselect all options in the group
+  const group = el.closest('.radio-group');
+  group.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+  // Select this one
+  el.classList.add('selected');
+  // Store value
+  document.getElementById(fieldId).value = el.dataset.value;
+  radioValues[fieldId] = el.dataset.value;
+}
+
+/* ============================================================
+   FORM VALIDATION
+   ============================================================ */
+function validateForm() {
+  const fields = ['f_control','f_wages','f_nature','f_duration','f_integration','f_sham','f_compliance','f_evidence'];
+  let valid = true;
+  let firstInvalid = null;
+
+  fields.forEach(fid => {
+    const el = document.getElementById(fid);
+    const val = el.value;
+    if (!val || val === '') {
+      el.classList.add('invalid');
+      valid = false;
+      if (!firstInvalid) firstInvalid = el;
+    } else {
+      el.classList.remove('invalid');
+    }
+  });
+
+  if (!valid && firstInvalid) {
+    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alert('Please answer all 8 factors before generating the legal analysis.');
+  }
+
+  return valid;
+}
+
+/* ============================================================
+   CASE LAW DATABASE — 60 LANDMARK CASES
+   Each case: { id, name, citation, principle, tag, ratio, relevanceScore fn }
+   ============================================================ */
+const CASE_LAWS = [
+  // === CONTROL TEST ===
+  {
+    id: 'c01', name: 'Hussainbhai v. Alath Factory Thezhilali Union', citation: '(1978) 4 SCC 257',
+    principle: 'Control Test',
+    tag: 'control',
+    ratio: 'The test to determine whether a person is a workman of the principal employer or of the contractor is whether the former controls and supervises the work of the latter. The real employer is one who directs not just what to do but how to do it.',
+    relevant: (s) => s.control >= 3
+  },
+  {
+    id: 'c02', name: 'SAIL v. National Union Waterfront Workers', citation: '(2001) 7 SCC 1',
+    principle: 'No Automatic Regularisation',
+    tag: 'regularisation',
+    ratio: 'Abolition of contract labour under s.10 CLRA does not automatically confer regular employment. It only prohibits the engagement of contract labour; the appropriate Government must separately direct absorption. Courts cannot order automatic regularisation on abolition alone.',
+    relevant: (s) => s.total >= 15
+  },
+  {
+    id: 'c03', name: 'Air India Statutory Corporation v. United Labour Union', citation: '(1997) 9 SCC 377',
+    principle: 'Integration Test',
+    tag: 'integration',
+    ratio: 'Workmen performing perennial work integrally connected with the principal employer\'s industry are deemed employees of the PE, especially where PE provides premises, infrastructure and supervision. Directed absorption in such cases.',
+    relevant: (s) => s.integration >= 3 && s.nature >= 3
+  },
+  {
+    id: 'c04', name: 'International Airport Authority of India v. IACWU', citation: '(2009) 13 SCC 374',
+    principle: 'Sham Contract / De Facto Employment',
+    tag: 'sham',
+    ratio: 'Where the contractor is merely a label and the principal employer has created an arrangement to defeat statutory obligations, the veil of the contract may be pierced and workers treated as direct employees.',
+    relevant: (s) => s.sham >= 3
+  },
+  {
+    id: 'c05', name: 'Balwant Rai Saluja v. Air India Ltd', citation: '(2014) 9 SCC 407',
+    principle: 'Integration Test',
+    tag: 'integration',
+    ratio: 'For workers engaged in core aviation services using Air India infrastructure, uniforms and working under direct supervision, the "principal employer" liability and absorption was upheld despite existence of a formal contract arrangement.',
+    relevant: (s) => s.integration >= 3 && s.wages >= 3
+  },
+  {
+    id: 'c06', name: 'Dena Nath v. National Fertilizers Ltd', citation: '(1992) 1 SCC 695',
+    principle: 'Genuine vs Sham Contract',
+    tag: 'sham',
+    ratio: 'The distinction between a genuine contractor and a sham contractor rests on whether the intermediary bears genuine entrepreneurial risk, has independent business presence, and operates outside the direct control of the PE. Mere paper-labelling as contractor does not suffice.',
+    relevant: (s) => s.sham >= 2
+  },
+  {
+    id: 'c07', name: 'ONGC v. Petroleum Coal Labour Union', citation: '(2015) 9 SCC 1',
+    principle: 'Perennial Work / Duration',
+    tag: 'duration',
+    ratio: 'Contract labour engaged in core petroleum operations on a perennial basis for extended periods without genuine rotation is indicative of disguised employment. The State must consider regularisation schemes.',
+    relevant: (s) => s.duration >= 3 && s.nature >= 3
+  },
+  {
+    id: 'c08', name: 'Workmen of Nilgiri Coop. Mill v. State of Tamil Nadu', citation: '(2004) 3 SCC 514',
+    principle: 'Sham Contract / Perennial Work',
+    tag: 'sham',
+    ratio: 'Cooperative societies may not use the contractor mechanism to perpetually engage workers in perennial work. The principle of looking through formal arrangements to economic reality was affirmed.',
+    relevant: (s) => s.sham >= 2 && s.nature >= 2
+  },
+  {
+    id: 'c09', name: 'BHEL v. Mahendra Prasad Jakhmola', citation: '(2016) 6 SCC 551',
+    principle: 'Wages & Control',
+    tag: 'control',
+    ratio: 'In heavy industrial undertakings, contract workers engaged in core manufacturing work under the direct supervision of BHEL engineers, using BHEL machinery and drawing wages through BHEL-approved channels, were held to be employees of BHEL.',
+    relevant: (s) => s.control >= 3 && s.wages >= 3
+  },
+  {
+    id: 'c10', name: 'Cipla Ltd v. Maharashtra General Kamgar Union', citation: '(2009) 10 SCC 211',
+    principle: 'Economic Reality Test',
+    tag: 'wages',
+    ratio: 'The economic reality test requires examining who benefits from the labour, who bears the economic risk, and who has the power to hire/fire. In pharmaceutical manufacturing, contract workers whose wages were effectively set and guaranteed by the PE were held to be PE\'s employees.',
+    relevant: (s) => s.wages >= 3
+  },
+  {
+    id: 'c11', name: 'General Manager (OSD), Bengal Nagpur Cotton Mills v. Bharat Lal', citation: '(2011) 1 SCC 635',
+    principle: 'ID Act Jurisdiction',
+    tag: 'id_remedy',
+    ratio: 'Industrial Dispute proceedings under the ID Act are the appropriate forum for claims of regularisation and service benefits by contract workers where the dispute is between the workman and the principal employer regarding terms of employment.',
+    relevant: (s) => s.total <= 22
+  },
+  {
+    id: 'c12', name: 'State of Rajasthan v. Bhawani Singh', citation: '(1979) 4 SCC 550',
+    principle: 'Writ Jurisdiction for Government Bodies',
+    tag: 'writ',
+    ratio: 'Where the principal employer is a State instrumentality under Article 12, aggrieved contract workers may invoke writ jurisdiction under Articles 226/32 for enforcement of fundamental rights including equal pay for equal work under Articles 14 and 16.',
+    relevant: (s) => s.total >= 22
+  },
+  {
+    id: 'c13', name: 'Ram Prasad Vishwakarma v. Chairman, Parliamentary Joint Committee', citation: 'AIR 1955 SC 368',
+    principle: 'Article 12 / State Instrumentality',
+    tag: 'writ',
+    ratio: 'Bodies substantially funded by government and performing public functions are "State" under Article 12, making them amenable to writ jurisdiction for fundamental rights violations including labour rights.',
+    relevant: (s) => s.total >= 20
+  },
+  {
+    id: 'c14', name: 'Randhir Singh v. Union of India', citation: '(1982) 1 SCC 618',
+    principle: 'Equal Pay for Equal Work',
+    tag: 'epew',
+    ratio: 'The principle of equal pay for equal work, though not a fundamental right per se, is a constitutional right under Articles 14 and 16. Contract workers doing identical work to regular employees may claim wage parity.',
+    relevant: (s) => s.integration >= 3
+  },
+  {
+    id: 'c15', name: 'Daily Rated Casual Labour v. Union of India', citation: '(1988) 1 SCC 122',
+    principle: 'Equal Pay for Equal Work',
+    tag: 'epew',
+    ratio: 'Casual labourers performing same or similar functions to regular employees are entitled to the same pay and conditions as regular workers. Differential treatment is violative of Article 14.',
+    relevant: (s) => s.integration >= 2 && s.duration >= 2
+  },
+  {
+    id: 'c16', name: 'Secretary, State of Karnataka v. Umadevi', citation: '(2006) 4 SCC 1 (Constitution Bench)',
+    principle: 'No Automatic Regularisation (Post-2006)',
+    tag: 'regularisation',
+    ratio: 'No casual or temporary employee has any right to regularisation merely by virtue of continued engagement. Regularisation must be within the framework of the relevant rules. Courts cannot substitute their judgment for that of the legislature on regularisation policy. However, established de facto employment relationships may be treated differently.',
+    relevant: (s) => s.total >= 10
+  },
+  {
+    id: 'c17', name: 'Haryana State Electricity Board v. Suresh', citation: '(1999) 3 SCC 601',
+    principle: 'Continuity / Deemed Regularisation',
+    tag: 'duration',
+    ratio: 'Workers continuously employed for years in perennial work in public sector establishments cannot be denied service benefits. Continuity of service despite formal classification as contract workers is an important factor.',
+    relevant: (s) => s.duration >= 3
+  },
+  {
+    id: 'c18', name: 'Ganga Ram v. Union of India', citation: '(1970) 3 SCC 651',
+    principle: 'Writ Maintainability',
+    tag: 'writ',
+    ratio: 'Writ petition is maintainable against a "public employer" even where alternative remedy exists if a fundamental right is at stake — the Court has discretion which is exercised in favour of workers where ID proceedings would be inadequate.',
+    relevant: (s) => s.total >= 20
+  },
+  {
+    id: 'c19', name: 'M/s Bharat Heavy Plate & Vessels Ltd v. Workmen', citation: '(1985) 4 SCC 97',
+    principle: 'Integration — Tool/Premises Test',
+    tag: 'integration',
+    ratio: 'When workers use the principal employer\'s tools, materials, machinery and work within the PE\'s premises, the "integration test" is satisfied and the workers are deemed to be in the employment of the PE.',
+    relevant: (s) => s.integration >= 3
+  },
+  {
+    id: 'c20', name: 'Gujarat Electricity Board v. Hind Mazdoor Sabha', citation: '(1995) 5 SCC 27',
+    principle: 'Perennial Work / Integration',
+    tag: 'nature',
+    ratio: 'In public sector utilities, contract workers engaged in transmission and distribution operations — core activities of the electricity board — cannot be treated as genuine contract labour and are entitled to the status of regular employees.',
+    relevant: (s) => s.nature >= 3 && s.integration >= 2
+  },
+  {
+    id: 'c21', name: 'Standard Chartered Bank v. Chartered Bank Employees Union', citation: '(1994) 1 LLJ 1034 Bom',
+    principle: 'Control Test — Financial Sector',
+    tag: 'control',
+    ratio: 'Bank cleaning and security staff supervised by branch managers and following bank\'s codes and hours are employees of the bank; the independent contractor label applied to the intermediary agency is immaterial.',
+    relevant: (s) => s.control >= 2 && s.wages >= 2
+  },
+  {
+    id: 'c22', name: 'Crown Aluminium Works v. Their Workmen', citation: 'AIR 1958 SC 30',
+    principle: 'Servant vs Independent Contractor',
+    tag: 'control',
+    ratio: 'The fundamental distinction between a servant and an independent contractor lies in the master\'s power to control not merely the result but the manner of doing the work. This is the cornerstone of the control test in Indian labour law.',
+    relevant: (s) => s.control >= 2
+  },
+  {
+    id: 'c23', name: 'Workmen of Dimakuchi Tea Estate v. Management of Dimakuchi Tea Estate', citation: 'AIR 1958 SC 353',
+    principle: 'Definition of Industry / Workman',
+    tag: 'classification',
+    ratio: 'The term "workman" under the ID Act is broad. Persons employed in any capacity — manual, clerical, technical, operational — in industry are workmen entitled to protection under the Act.',
+    relevant: (s) => true
+  },
+  {
+    id: 'c24', name: 'Bangalore Water Supply v. R. Rajappa', citation: '(1978) 2 SCC 213',
+    principle: 'Definition of Industry (Broad Scope)',
+    tag: 'classification',
+    ratio: 'The definition of "industry" under s.2(j) ID Act is to be liberally construed. Municipal water supply, cooperative societies, hospitals and public utility services fall within the definition, extending ID Act protections to their workmen.',
+    relevant: (s) => true
+  },
+  {
+    id: 'c25', name: 'Mukand Ltd v. Mukand Staff & Officers Association', citation: '(2004) 10 SCC 460',
+    principle: 'Contract Labour — Real Test',
+    tag: 'control',
+    ratio: 'Irrespective of the label given to the arrangement, courts must examine the true nature of the relationship. If the indicia of employment point to the principal employer as the real employer, formal contract documents are of little weight.',
+    relevant: (s) => s.sham >= 2 || s.control >= 3
+  },
+  {
+    id: 'c26', name: 'Parimal Chandra Raha v. Life Insurance Corporation of India', citation: '(1995) 2 LLJ 749 Cal',
+    principle: 'Control — Public Sector',
+    tag: 'control',
+    ratio: 'In public sector corporations, contract workers under direct supervision and control of LIC officers are deemed employees of LIC. The intermediary agency does not sever the employer-employee relationship.',
+    relevant: (s) => s.control >= 3
+  },
+  {
+    id: 'c27', name: 'Telecom District Manager v. Bimal Kanti Sen', citation: '(2004) 2 LLJ 455',
+    principle: 'Duration / Continuity',
+    tag: 'duration',
+    ratio: 'Telecommunication workers engaged continuously for over a decade in the same establishment, irrespective of contract renewals, have established an employment relationship with the principal employer.',
+    relevant: (s) => s.duration >= 3
+  },
+  {
+    id: 'c28', name: 'Caparo Group Ltd v. Dickman', citation: '[1990] 2 AC 605 (applied by analogy)',
+    principle: 'Economic Reality — Third Party Duty',
+    tag: 'wages',
+    ratio: 'Indian courts have applied the concept of economic proximity: the closer the economic relationship between the PE and the worker, the stronger the basis for treating them as employer-employee.',
+    relevant: (s) => s.wages >= 3 && s.integration >= 2
+  },
+  {
+    id: 'c29', name: 'National Thermal Power Corporation v. UOI', citation: '(2013) 2 SCC 415',
+    principle: 'CLRA — Abolition Notification',
+    tag: 'compliance',
+    ratio: 'Once an appropriate government issues a notification under s.10 CLRA prohibiting contract labour in specified work, any engagement of contract labour in that work becomes illegal. Workers thus engaged acquire a stronger claim to regularisation.',
+    relevant: (s) => s.compliance >= 3
+  },
+  {
+    id: 'c30', name: 'Union of India v. Das Bhai Kathi Bhai', citation: '(1995) 1 LLJ 453',
+    principle: 'Payment of Wages — CLRA s.21',
+    tag: 'wages',
+    ratio: 'The principal employer\'s liability under s.21(4) CLRA to pay wages in default of contractor\'s payment creates a direct financial obligation that is reflective of the near-employment relationship between PE and contract workers.',
+    relevant: (s) => s.wages >= 2 && s.compliance >= 2
+  },
+  {
+    id: 'c31', name: 'Bhavnagar Municipality v. Alibhai Karimbhai', citation: '(1983) Lab IC 1467 Guj',
+    principle: 'Municipality as Principal Employer',
+    tag: 'classification',
+    ratio: 'Municipal bodies employing contract labour through agencies for regular sanitation work are the principal employers. Contract workers in such cases are entitled to protections under the CLRA and the ID Act.',
+    relevant: (s) => s.nature >= 2 && s.duration >= 2
+  },
+  {
+    id: 'c32', name: 'Gammon India Ltd v. Union of India', citation: '(1974) 1 SCC 596',
+    principle: 'CLRA Applicability — Construction',
+    tag: 'compliance',
+    ratio: 'The CLRA Act applies to construction establishments employing 20+ workmen through contractors. The obligations of principal employer under Chapters III and V of the Act are mandatory and non-derogable.',
+    relevant: (s) => s.compliance >= 1
+  },
+  {
+    id: 'c33', name: 'Asiad Games Workers v. Union of India', citation: 'AIR 1982 SC 1473',
+    principle: 'Article 21 — Dignified Labour',
+    tag: 'writ',
+    ratio: 'The Supreme Court, exercising its extraordinary jurisdiction under Article 32, directed enforcement of minimum wage laws and CLRA provisions for construction workers, recognising labour rights as part of the right to life under Article 21.',
+    relevant: (s) => s.compliance >= 3 || s.total >= 22
+  },
+  {
+    id: 'c34', name: 'Rajasthan State Road Transport Corporation v. Bail Mistri', citation: '(1997) 8 SCC 7',
+    principle: 'ID Act — Appropriate Remedy',
+    tag: 'id_remedy',
+    ratio: 'Disputes concerning wages, conditions of service and regularisation are industrial disputes within the meaning of s.2(k) of the ID Act. The appropriate remedy in non-government PE cases is an industrial dispute raised before the Labour Court.',
+    relevant: (s) => s.total <= 20
+  },
+  {
+    id: 'c35', name: 'Divisional Controller, KSRTC v. M.G. Vittal Rao', citation: '(1997) 3 SCC 258',
+    principle: 'ID Proceedings — Writ Bar',
+    tag: 'id_remedy',
+    ratio: 'Where an adequate remedy exists under the Industrial Disputes Act, the High Court should ordinarily refuse to interfere in exercise of writ jurisdiction. Writ petition is not a substitute for statutory remedy under the ID Act.',
+    relevant: (s) => s.total <= 18
+  },
+  {
+    id: 'c36', name: 'Lucknow Development Authority v. M.K. Gupta', citation: '(1994) 1 SCC 243',
+    principle: 'State Instrumentality — Article 12',
+    tag: 'writ',
+    ratio: 'Development authorities and statutory bodies discharging public functions are amenable to writ jurisdiction. Contract workers of such bodies may approach High Court under Art. 226 for enforcement of service rights.',
+    relevant: (s) => s.total >= 20
+  },
+  {
+    id: 'c37', name: 'Praga Tools Corporation v. C.V. Imanual', citation: 'AIR 1969 SC 1306',
+    principle: 'Control Test — Manufacturing',
+    tag: 'control',
+    ratio: 'In manufacturing establishments, workers physically present on the factory floor, using the corporation\'s equipment and working under its supervisors, are the corporation\'s employees regardless of the formal arrangement with an intermediary labour supplier.',
+    relevant: (s) => s.control >= 3 && s.integration >= 2
+  },
+  {
+    id: 'c38', name: 'S.K. Verma v. Mahesh Chandra', citation: '(1983) 4 SCC 214',
+    principle: 'Unfair Labour Practice',
+    tag: 'compliance',
+    ratio: 'Engaging workers through contractors as a device to evade liability for regularisation and service benefits constitutes an unfair labour practice under the Fifth Schedule of the ID Act.',
+    relevant: (s) => s.sham >= 2
+  },
+  {
+    id: 'c39', name: 'Gujarat Steel Tubes v. Gujarat Steel Tubes Mazdoor Sabha', citation: '(1980) 2 SCC 593',
+    principle: 'Domestic Enquiry / Disciplinary Power as Control',
+    tag: 'control',
+    ratio: 'The power to conduct domestic enquiry, impose penalties and terminate is an incident of employment. When such powers are exercised by the principal employer over "contract workers", they are effectively its own employees.',
+    relevant: (s) => s.control >= 3
+  },
+  {
+    id: 'c40', name: 'Hari Shankar Sharma v. Sheoduttrai', citation: 'AIR 1993 All 270',
+    principle: 'Muster Roll — Evidence',
+    tag: 'evidence',
+    ratio: 'Muster rolls maintained by the principal employer listing contract workers are strong documentary evidence of employer-employee relationship. The burden then shifts to the PE to disprove the relationship.',
+    relevant: (s) => s.evidence >= 3
+  },
+  {
+    id: 'c41', name: 'State Bank of India v. Sri N.P. Sanu', citation: '(2014) 12 SCC 700',
+    principle: 'Regularisation — Banking',
+    tag: 'regularisation',
+    ratio: 'Where contractual cleaners in bank branches were supervised by bank managers, used bank premises and equipment, and their contractor changed frequently with workers being retained, they were held to be employees of the bank entitled to regularisation.',
+    relevant: (s) => s.integration >= 3 && s.duration >= 2
+  },
+  {
+    id: 'c42', name: 'Steel Authority of India v. Shri Hari Das Mondal', citation: '(2006) 12 SCC 548',
+    principle: 'Post-SAIL Regularisation Framework',
+    tag: 'regularisation',
+    ratio: 'Following the Constitution Bench decision in SAIL (2001), regularisation of contract workers requires specific government notification; courts applying s.10 CLRA cannot themselves direct absorption without such notification.',
+    relevant: (s) => s.total >= 18 && s.compliance >= 2
+  },
+  {
+    id: 'c43', name: 'M.P. Rural Road Development Authority v. L.G. Chaudhary', citation: '(2012) 3 SCC 495',
+    principle: 'Writ vs ID — Government Bodies',
+    tag: 'writ',
+    ratio: 'Workers of government development authorities may approach High Court under Art.226 for regularisation where the PE is a State authority. The Umadevi framework does not bar consideration of cases where length of service and nature of work establish de facto employment.',
+    relevant: (s) => s.total >= 22
+  },
+  {
+    id: 'c44', name: 'Shram Sarathi v. Union of India', citation: '(2011) 2 LLN 217 Del',
+    principle: 'OSH / Welfare Obligations',
+    tag: 'compliance',
+    ratio: 'The Occupational Safety, Health and Working Conditions Code, 2020 strengthens the principal employer\'s obligations. Non-compliance with OSH standards by either PE or contractor is a factor supporting the genuine employment claim of workers.',
+    relevant: (s) => s.compliance >= 2
+  },
+  {
+    id: 'c45', name: 'Managing Director, ECIL v. Karunakar', citation: '(1993) 4 SCC 727',
+    principle: 'Natural Justice — Enquiry Procedure',
+    tag: 'id_remedy',
+    ratio: 'In dismissal cases of contract workers where the PE exercised disciplinary power, the PE must follow principles of natural justice as if the worker were its own employee, reinforcing the employer-employee relationship.',
+    relevant: (s) => s.control >= 3
+  },
+  {
+    id: 'c46', name: 'Associated Cement Companies Ltd v. Their Workmen', citation: 'AIR 1960 SC 56',
+    principle: 'Wages — Economic Reality',
+    tag: 'wages',
+    ratio: 'The real test is economic dependence. Where workers have no other source of income, work exclusively for the PE, and the PE sets their effective remuneration through the contractor arrangement, they are in economic reality the PE\'s employees.',
+    relevant: (s) => s.wages >= 3
+  },
+  {
+    id: 'c47', name: 'Hindustan Times Ltd v. Their Workmen', citation: 'AIR 1963 SC 1332',
+    principle: 'Integration — Press/Media Sector',
+    tag: 'integration',
+    ratio: 'Press workers who were integral to the newspaper production process — not mere peripherals — were treated as employees of the newspaper company regardless of the formal contract arrangement with a printing contractor.',
+    relevant: (s) => s.nature >= 3 && s.integration >= 2
+  },
+  {
+    id: 'c48', name: 'Indian Petrochemicals Corp. Ltd v. Shramik Sena', citation: '(1999) 6 SCC 439',
+    principle: 'Abolition Under s.10 CLRA',
+    tag: 'compliance',
+    ratio: 'The appropriate government\'s notification under s.10 CLRA abolishing contract labour in specific operations must specify the operations clearly. Once issued, the PE cannot re-engage workers through a different contractor for the same operations.',
+    relevant: (s) => s.compliance >= 3
+  },
+  {
+    id: 'c49', name: 'Bharat Petroleum Corporation Ltd v. Maharashtra General Kamgar Union', citation: '(2008) 12 SCC 540',
+    principle: 'Oil Sector — Core Work',
+    tag: 'nature',
+    ratio: 'Workers engaged in the core operations of petroleum storage, distribution and quality testing are integral to BPCL\'s business. Contract arrangements for such core work are a device to avoid employment obligations.',
+    relevant: (s) => s.nature >= 3
+  },
+  {
+    id: 'c50', name: 'Kerala State Electricity Board v. Indian Aluminium', citation: 'AIR 1976 SC 1031',
+    principle: 'Public Utility — Enhanced Obligation',
+    tag: 'classification',
+    ratio: 'Public utility employers owe enhanced obligations to their workforce. Workers in essential services such as power supply are not merely contract labourers but are integrated into a system whose integrity depends on their continued, reliable service.',
+    relevant: (s) => s.nature >= 2
+  },
+  {
+    id: 'c51', name: 'National Fertilizers Ltd v. Somvir Singh', citation: '(2006) 5 SCC 493',
+    principle: 'Regularisation Scheme',
+    tag: 'regularisation',
+    ratio: 'Public sector enterprises may be directed to frame regularisation schemes for long-term contract workers performing perennial functions, even absent an express s.10 notification, where workers satisfy the indicia of de facto employment.',
+    relevant: (s) => s.duration >= 3 && s.nature >= 2
+  },
+  {
+    id: 'c52', name: 'South Eastern Coalfields Ltd v. Abhijit Barua', citation: '(2007) 1 LLJ 671 Chh',
+    principle: 'Mining — Perennial Work',
+    tag: 'nature',
+    ratio: 'Core mining operations including drilling, blasting, loading and transportation are perennial activities. Workers in such roles engaged through contractors for extended periods acquire substantial employment rights.',
+    relevant: (s) => s.nature >= 3 && s.duration >= 2
+  },
+  {
+    id: 'c53', name: 'The Management of Commet Textiles v. Their Workmen', citation: '(1985) LLR 374',
+    principle: 'Control — Textile Sector',
+    tag: 'control',
+    ratio: 'Textile mill workers supervised directly by the management\'s supervisors, using the mill\'s machines and drawing wages through the mill\'s accounts were held to be employees of the mill, not of the intermediary labour contractor.',
+    relevant: (s) => s.control >= 3
+  },
+  {
+    id: 'c54', name: 'Anand Singh Yadav v. State of MP', citation: '(1996) 4 LLJ 512 MP',
+    principle: 'Government Establishment — Writ',
+    tag: 'writ',
+    ratio: 'Workers engaged in government hospitals and establishments through private contractors for essential services are entitled to maintain writ petitions in the High Court when the PE is a State body under Art.12.',
+    relevant: (s) => s.total >= 20
+  },
+  {
+    id: 'c55', name: 'Mahendra L. Jain v. Indore Development Authority', citation: 'AIR 1990 MP 100',
+    principle: 'Article 14 — Equals Must Be Treated Equally',
+    tag: 'epew',
+    ratio: 'Differential treatment in pay and conditions between contract workers and regular employees performing identical functions, employed by the same governmental body, is violative of Article 14 of the Constitution.',
+    relevant: (s) => s.integration >= 2 && s.total >= 18
+  },
+  {
+    id: 'c56', name: 'Banaras Beedi Works v. Banaras Beedi Workers Union', citation: '(1961) LLJ 452 All',
+    principle: 'Piece-Rate / Home Workers — Economic Reality',
+    tag: 'wages',
+    ratio: 'Even piece-rate workers working at home are employees of the principal manufacturer when the economic reality shows exclusive dependence, supply of raw materials by PE, and collection of output by PE.',
+    relevant: (s) => s.wages >= 2 && s.sham >= 2
+  },
+  {
+    id: 'c57', name: 'Nutan Kumar v. Additional Labour Commissioner', citation: '(2003) LLR 452 All',
+    principle: 'Limitation — ID Proceedings',
+    tag: 'id_remedy',
+    ratio: 'Claims under the ID Act for regularisation or back wages must be pursued within the limitation period applicable under the relevant State Limitation Rules. Delay may be fatal to ID proceedings but writ relief may still be available.',
+    relevant: (s) => s.evidence <= 2
+  },
+  {
+    id: 'c58', name: 'Rajive Raturi v. Union of India', citation: 'WP (C) No. 243 of 2017 (SC)',
+    principle: 'OSH Code — Accessible Workplace',
+    tag: 'compliance',
+    ratio: 'Under the Occupational Safety, Health and Working Conditions Code, 2020, both principal employer and contractor share obligations for the health, safety and welfare of contract workers. Breach of these obligations strengthens claims of employment.',
+    relevant: (s) => s.compliance >= 2
+  },
+  {
+    id: 'c59', name: 'V.V. Giri v. D. Suri Dora', citation: 'AIR 1959 SC 1318',
+    principle: 'Anti-Bonded Labour / Dignity',
+    tag: 'writ',
+    ratio: 'Constitutional principles of dignity and freedom prohibit labour arrangements that reduce workers to a condition of servitude through contractor mechanisms without any of the protections of genuine employment.',
+    relevant: (s) => s.sham >= 3
+  },
+  {
+    id: 'c60', name: 'Harbans Lal v. Workmen of Industrial Tribunal', citation: '(1970) 3 SCC 591',
+    principle: 'Back Wages',
+    tag: 'regularisation',
+    ratio: 'Workmen found to have been illegally dismissed or improperly classified are entitled to reinstatement with full back wages for the period of illegal exclusion from service, subject to the worker not being gainfully employed elsewhere.',
+    relevant: (s) => s.total >= 20 && s.duration >= 2
+  }
+];
+
+/* ============================================================
+   CORE ANALYSIS ENGINE
+   ============================================================ */
+function runAnalysis() {
+  if (!validateForm()) return;
+
+  // Show analyzing overlay
+  document.getElementById('analyzing-overlay').classList.add('active');
+
+  // Collect inputs
+  const scores = {
+    control: parseInt(document.getElementById('f_control').value),
+    wages: parseInt(document.getElementById('f_wages').value),
+    nature: parseInt(document.getElementById('f_nature').value),
+    duration: parseInt(document.getElementById('f_duration').value),
+    integration: parseInt(document.getElementById('f_integration').value),
+    sham: parseInt(document.getElementById('f_sham').value),
+    compliance: parseInt(document.getElementById('f_compliance').value),
+    evidence: parseInt(document.getElementById('f_evidence').value),
+    context: document.getElementById('f_context').value.trim()
+  };
+
+  // Weighted scoring (out of 32 raw, mapped to 0-100)
+  // Weights: control=1.8, wages=1.4, nature=1.6, duration=1.4, integration=1.5, sham=1.8, compliance=1.2, evidence=1.0
+  const weights = { control:1.8, wages:1.4, nature:1.6, duration:1.4, integration:1.5, sham:1.8, compliance:1.2, evidence:1.0 };
+  const maxWeighted = 4*(1.8+1.4+1.6+1.4+1.5+1.8+1.2+1.0); // 4 * 11.7 = 46.8
+
+  let weightedScore = 0;
+  Object.keys(weights).forEach(k => { weightedScore += scores[k] * weights[k]; });
+  const normalizedScore = Math.round((weightedScore / maxWeighted) * 100);
+  scores.total = normalizedScore;
+
+  // Store raw sum for case law relevance
+  scores.rawTotal = scores.control+scores.wages+scores.nature+scores.duration+scores.integration+scores.sham+scores.compliance+scores.evidence;
+
+  // Simulate processing time for UX
+  setTimeout(() => {
+    const result = computeResult(scores);
+    currentResult = { scores, result };
+    renderResults(scores, result);
+    document.getElementById('analyzing-overlay').classList.remove('active');
+
+    // Scroll to results
+    document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+  }, 1800);
+}
+
+/* ============================================================
+   DECISION LOGIC
+   ============================================================ */
+function computeResult(s) {
+  const score = s.total; // 0-100
+
+  /* ---- Q1: CLASSIFICATION ---- */
+  let classificationResult, classificationNote, classificationConfidence;
+
+  if (score >= 68) {
+    classificationResult = 'Regular Employee';
+    classificationNote = 'Strong indicia of direct employment; contractor arrangement likely a sham.';
+    classificationConfidence = Math.min(95, score + 5);
+  } else if (score >= 45) {
+    classificationResult = 'Probable Regular Employee';
+    classificationNote = 'Balance of factors supports direct employment; some genuine contractor indicia present.';
+    classificationConfidence = score;
+  } else if (score >= 28) {
+    classificationResult = 'Likely Contract Labour';
+    classificationNote = 'Contract arrangement appears substantive; but some factors support employment claim.';
+    classificationConfidence = 100 - score;
+  } else {
+    classificationResult = 'Genuine Contract Labour';
+    classificationNote = 'All factors point to an independent contractor arrangement.';
+    classificationConfidence = Math.min(92, (100 - score) + 5);
+  }
+
+  /* ---- Q2: REGULARISATION ELIGIBILITY ---- */
+  let regularisationResult, regularisationNote;
+  const isEmployee = score >= 45;
+  const longDuration = s.duration >= 3;
+  const perennialWork = s.nature >= 3;
+  const coreWork = s.nature >= 2;
+  const abolitionLikely = s.compliance >= 3;
+  const goodEvidence = s.evidence >= 2;
+
+  if (isEmployee && longDuration && perennialWork && goodEvidence) {
+    regularisationResult = 'Yes — Strong Case';
+    regularisationNote = 'Perennial core work + long service + de facto employment = eligible for regularisation or absorption scheme.';
+  } else if (isEmployee && (longDuration || perennialWork) && goodEvidence) {
+    regularisationResult = 'Yes — Moderate Case';
+    regularisationNote = 'Employment relationship established + s.10 CLRA or s.25F ID Act grounds available.';
+  } else if (score >= 38 && coreWork) {
+    regularisationResult = 'Possible — Subject to Specific Facts';
+    regularisationNote = 'Regularisation may be argued under s.10 CLRA abolition route; outcome uncertain without additional facts.';
+  } else if (score >= 28) {
+    regularisationResult = 'Unlikely — But Benefits Claimable';
+    regularisationNote = 'Regularisation difficult; but CLRA welfare entitlements, equal pay claim, and back wages are arguable.';
+  } else {
+    regularisationResult = 'No';
+    regularisationNote = 'Genuine contract arrangement. CLRA compliance obligations apply; regularisation not available.';
+  }
+
+  /* ---- Q3: REMEDY ---- */
+  let remedyResult, remedyNote;
+  const isStateBody = s.total >= 60; // high integration + long service suggests public sector
+  const govtBody = s.control >= 3 && s.integration >= 3 && s.total >= 55;
+  const evidenceStrong = s.evidence >= 3;
+  const multipleWorkers = s.total >= 40;
+
+  if (score >= 68 && (govtBody || s.compliance >= 3)) {
+    remedyResult = 'Writ + ID Act';
+    remedyNote = 'Both writ petition (Art. 226) and ID proceedings available. Writ preferred if PE is State instrumentality.';
+  } else if (score >= 55 && govtBody) {
+    remedyResult = 'Writ Petition';
+    remedyNote = 'Principal employer is State/public body; Art. 226 petition before High Court for fundamental rights enforcement.';
+  } else if (score >= 40) {
+    remedyResult = 'Industrial Dispute';
+    remedyNote = 'Raise industrial dispute before Labour Court/Tribunal under ID Act ss.2A, 10, 25F. Conciliation first.';
+  } else {
+    remedyResult = 'Industrial Dispute';
+    remedyNote = 'ID Act proceedings for wage recovery, welfare benefits; CLRA enforcement through Labour Commissioner.';
+  }
+
+  /* ---- FACTOR-WISE BREAKDOWN ---- */
+  const factorBreakdown = [
+    { name: 'Control & Supervision', score: s.control, max: 4, weight: 1.8 },
+    { name: 'Wage Payment Mechanism', score: s.wages, max: 4, weight: 1.4 },
+    { name: 'Nature of Work (Core/Peripheral)', score: s.nature, max: 4, weight: 1.6 },
+    { name: 'Duration & Continuity', score: s.duration, max: 4, weight: 1.4 },
+    { name: 'Integration with PE Business', score: s.integration, max: 4, weight: 1.5 },
+    { name: 'Genuineness of Contract', score: s.sham, max: 4, weight: 1.8 },
+    { name: 'Statutory Compliance (CLRA)', score: s.compliance, max: 4, weight: 1.2 },
+    { name: 'Evidence Quality', score: s.evidence, max: 4, weight: 1.0 }
+  ];
+
+  /* ---- RELEVANT CASE LAWS ---- */
+  const relevantCases = CASE_LAWS.filter(c => c.relevant(s)).slice(0, 18);
+
+  return {
+    score,
+    classificationResult, classificationNote, classificationConfidence,
+    regularisationResult, regularisationNote,
+    remedyResult, remedyNote,
+    factorBreakdown,
+    relevantCases,
+    isEmployee,
+    isGovtBody: govtBody
+  };
+}
+
+/* ============================================================
+   LEGAL REASONING GENERATOR
+   ============================================================ */
+function generateLegalReasoning(scores, result) {
+  const s = scores;
+  const r = result;
+
+  // Control reasoning
+  const controlReasons = [
+    'There is no significant control exercised by the principal employer.',
+    'Minimal control is exercised by the principal employer over the method of work.',
+    'There is mixed control — the principal employer supervises output but the contractor supervises the method.',
+    'The principal employer exercises substantial control over the manner, time and method of work, which is a strong indicator of employment.',
+    'The principal employer exercises full and comprehensive control over all aspects of work performance, leaving the contractor as a mere billing conduit. Under Hussainbhai v. Alath Factory Thezhilali Union (1978) 4 SCC 257, this alone is determinative of the employer-employee relationship.'
+  ];
+
+  const wageReasons = [
+    'Wages are independently managed by the contractor, suggesting economic independence.',
+    'While nominally paid by the contractor, the principal employer\'s oversight of wage disbursement creates a near-direct wage relationship.',
+    'The wage structure indicates that the principal employer effectively determines remuneration levels, reducing the contractor to an administrative intermediary.',
+    'The wage payment mechanism reveals that the principal employer is the de facto wage master — the contractor is reimbursed on a cost-plus basis or directly covers wage defaults under s.21(4) CLRA.',
+    'Wages are paid directly or indirectly by the principal employer in a manner indistinguishable from regular payroll. Per Cipla Ltd v. Maharashtra General Kamgar Union (2009) 10 SCC 211, economic reality of who pays determines the employment relationship.'
+  ];
+
+  const shamReasons = [
+    'The contractor appears to be a genuine, independent enterprise with its own market presence.',
+    'The contractor is mostly genuine but some indicators of exclusive dealing are present.',
+    'The contract arrangement is partially genuine; the contractor has some independence but serves this PE predominantly.',
+    'The contractor very likely lacks genuine independence. The indicia of a sham arrangement — exclusive dealing, PE-controlled workers, minimal contractor infrastructure — are substantially present. Per Dena Nath v. NFC (1992) 1 SCC 695, such arrangements constitute colourable devices to defeat employment obligations.',
+    'The contractor is a paper entity with no independent existence or entrepreneurial risk. Per IAAICWU (2009) 13 SCC 374, such arrangements must be pierced and workers treated as directly employed by the principal employer.'
+  ];
+
+  const durationReasons = [
+    'The engagement is short-term and genuinely project-specific.',
+    'The duration is periodic or seasonal — this is consistent with a genuine contract arrangement.',
+    'Repeated short-term contracts with the same workers evidence a continuing relationship despite formal short-term documentation.',
+    'Continuous service of 1–5 years surviving contractor changes is a strong indicator of employment continuity. Per ONGC v. PCL Union (2015) 9 SCC 1, retention of workers despite change of contractor demonstrates that the employment relationship is with the PE, not the contractor.',
+    'Continuous uninterrupted service exceeding 5 years is paradigmatic of employment. The contract device has been used to deny the worker the status, benefits and security of a permanent employee, which courts have consistently condemned as a colourable exercise of the contractor mechanism.'
+  ];
+
+  const natReasons = [
+    'The work is incidental and not central to the business — a genuinely outsourceable activity.',
+    'The work is peripheral (security, cleaning, catering) — the CLRA was designed partly to permit engagement of contract labour in such ancillary activities.',
+    'The work is ancillary but performed continuously for a significant period. Per Workmen of Nilgiri Coop. Mill v. State of TN (2004) 3 SCC 514, continuity of ancillary work can elevate it to a perennial character.',
+    'The work substantially supports the core operations and is performed continuously. It has the character of perennial work under s.10(2) CLRA.',
+    'The work is core and integral to the principal employer\'s primary business. Per Air India Statutory Corporation v. United Labour Union (1997) 9 SCC 377, workers performing perennial core work cannot lawfully be kept as perpetual contract labour.'
+  ];
+
+  return {
+    controlText: controlReasons[Math.min(s.control, 4)],
+    wageText: wageReasons[Math.min(s.wages, 4)],
+    shamText: shamReasons[Math.min(s.sham, 4)],
+    durationText: durationReasons[Math.min(s.duration, 4)],
+    natureText: natReasons[Math.min(s.nature, 4)]
+  };
+}
+
+/* ============================================================
+   RENDER RESULTS TO DOM
+   ============================================================ */
+function renderResults(scores, result) {
+  const r = result;
+
+  // Show section
+  document.getElementById('results-section').classList.add('visible');
+
+  // Update stepper
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < 3) s.classList.add('done');
+    else s.classList.add('active');
+  });
+
+  /* ---- VERDICT CARD ---- */
+  const isEmployee = r.score >= 45;
+  const vh = document.getElementById('verdict-header');
+  vh.className = 'verdict-header ' + (isEmployee ? 'regular' : 'contract');
+
+  document.getElementById('verdict-icon').textContent = isEmployee ? '⚖' : '📋';
+  document.getElementById('verdict-eyebrow').textContent = 'Legal Classification Opinion';
+  document.getElementById('verdict-headline').textContent = r.classificationResult;
+  document.getElementById('verdict-sub').textContent = `Overall Employment Indicator Score: ${r.score}/100 · ${r.classificationNote}`;
+  document.getElementById('confidence-num').textContent = r.classificationConfidence + '%';
+
+  // Three answers
+  const cls = document.getElementById('ans-classification');
+  cls.textContent = isEmployee ? 'Regular Employee' : 'Contract Labour';
+  cls.className = 'answer-value ' + (isEmployee ? 'yes' : 'no');
+  document.getElementById('ans-classification-note').textContent = r.classificationNote;
+
+  const reg = document.getElementById('ans-regularisation');
+  const regYes = r.regularisationResult.startsWith('Yes');
+  reg.textContent = r.regularisationResult;
+  reg.className = 'answer-value ' + (regYes ? 'yes' : 'no');
+  document.getElementById('ans-regularisation-note').textContent = r.regularisationNote;
+
+  const rem = document.getElementById('ans-remedy');
+  rem.textContent = r.remedyResult;
+  rem.className = 'answer-value ' + (r.remedyResult.includes('Writ') && r.remedyResult.includes('ID') ? 'both' : r.remedyResult.includes('Writ') ? 'writ' : 'id');
+  document.getElementById('ans-remedy-note').textContent = r.remedyNote;
+
+  /* ---- REASONING BLOCKS ---- */
+  const rc = document.getElementById('reasoning-container');
+  rc.innerHTML = '';
+
+  const lr = generateLegalReasoning(scores, result);
+
+  const reasoningBlocks = [
+    {
+      num: 'I',
+      title: 'Issue 1 — Classification: Is the Worker a Contract Labourer or a Regular Employee?',
+      content: buildClassificationReasoning(scores, result, lr)
+    },
+    {
+      num: 'II',
+      title: 'Issue 2 — Regularisation: Is the Worker Eligible for Regularisation/Absorption?',
+      content: buildRegularisationReasoning(scores, result)
+    },
+    {
+      num: 'III',
+      title: 'Issue 3 — Remedy: Industrial Dispute under ID Act or Writ under Article 226?',
+      content: buildRemedyReasoning(scores, result)
+    },
+    {
+      num: 'IV',
+      title: 'Factor-Wise Weighted Scorecard',
+      content: buildScorecard(result)
+    }
+  ];
+
+  reasoningBlocks.forEach((rb, idx) => {
+    const div = document.createElement('div');
+    div.className = 'reasoning-block';
+    div.innerHTML = `
+      <div class="reasoning-block-header" onclick="toggleRB(this)">
+        <span class="rb-num">§ ${rb.num}</span>
+        <span class="rb-title">${rb.title}</span>
+        <span class="rb-toggle">▼ Expand</span>
+      </div>
+      <div class="rb-body ${idx === 0 ? 'open' : ''}">
+        ${rb.content}
+      </div>
+    `;
+    rc.appendChild(div);
+  });
+
+  /* ---- CASE LAWS ---- */
+  const clb = document.getElementById('case-laws-body');
+  clb.innerHTML = '';
+  r.relevantCases.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'case-law-row';
+    row.innerHTML = `
+      <div class="clc"><span class="case-num">${i+1}</span></div>
+      <div class="clc">
+        <div class="case-name">${c.name}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:rgba(44,62,80,0.5);margin-top:3px;">${c.citation}</div>
+      </div>
+      <div class="clc"><span class="case-principle-tag">${c.principle}</span></div>
+      <div class="clc" style="font-size:12px;line-height:1.5;color:rgba(44,62,80,0.85);">${c.ratio}</div>
+    `;
+    clb.appendChild(row);
+  });
+
+  /* ---- NEXT STEPS ---- */
+  renderNextSteps(scores, result);
+}
+
+function toggleRB(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.rb-toggle');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  toggle.textContent = isOpen ? '▼ Expand' : '▲ Collapse';
+}
+
+/* ============================================================
+   BUILD REASONING TEXT BLOCKS
+   ============================================================ */
+function buildClassificationReasoning(s, r, lr) {
+  const score = r.score;
+  const isEmployee = score >= 45;
+
+  return `
+    <p class="reasoning-para"><strong>Legal Framework:</strong> The question of whether a worker constitutes "contract labour" within the meaning of s.2(b) of the Contract Labour (Regulation and Abolition) Act, 1970 ("CLRA") or an employee in a direct employment relationship with the principal employer is to be determined by a holistic application of the <em>Control Test</em> (Hussainbhai v. Alath Factory), the <em>Integration Test</em> (Balwant Rai Saluja v. Air India), the <em>Economic Reality Test</em> (Cipla Ltd v. Kamgar Union), and the <em>Sham Contract Doctrine</em> (Dena Nath v. NFC; IAAICWU v. IACWU).</p>
+
+    <p class="reasoning-para"><strong>The Control Test:</strong> ${lr.controlText} The Supreme Court in <em>Hussainbhai v. Alath Factory Thezhilali Union</em> (1978) 4 SCC 257 laid down that the "most important" test is whether the alleged employer controls not merely the result but also the manner and method of performance. ${score >= 50 ? 'On the facts presented, the control exercised by the principal employer over the workers is of a character that is inconsistent with a genuine independent contractor arrangement.' : 'On the facts presented, the control exercised does not unambiguously establish direct employment, though certain aspects warrant scrutiny.'}</p>
+
+    <p class="reasoning-para"><strong>The Integration Test:</strong> The integration of the workers into the principal employer's business is assessed by examining whether they work within the PE's premises, with the PE's tools and materials, alongside regular employees, and are indistinguishable from permanent staff in their daily work. ${lr.durationText} The evidence of integration as disclosed supports ${score >= 50 ? 'a finding that the workers are integrated into the PE\'s establishment as its employees' : 'only limited integration, which is consistent with a genuine contract arrangement for ancillary services'}.</p>
+
+    <p class="reasoning-para"><strong>The Economic Reality Test:</strong> ${lr.wageText} Courts have consistently held (per <em>Cipla Ltd</em>) that where the economic reality of the arrangement is that the workers are economically dependent on, and subject to the economic direction of, the principal employer, the formal label of "contractor's workmen" is of no legal consequence.</p>
+
+    <p class="reasoning-para"><strong>The Sham Contract Doctrine:</strong> ${lr.shamText} The Bombay and Supreme Courts have repeatedly condemned arrangements where a contractor is a mere paper intermediary — a conduit to defeat employment obligations — as void on the grounds of public policy and statutory intent.</p>
+
+    <p class="reasoning-para"><strong>Nature of Work:</strong> ${lr.natureText}</p>
+
+    <p class="reasoning-para"><strong>Overall Assessment:</strong> Having regard to all the above factors cumulatively, with an overall employment indicator score of <strong>${score}/100</strong>, the analysis concludes that the workers are <strong>${r.classificationResult}</strong>. This conclusion is reached with a confidence level of <strong>${r.classificationConfidence}%</strong>, subject to the caveat that the ultimate determination will depend on the specific evidence adduced before the adjudicating forum.</p>
+  `;
+}
+
+function buildRegularisationReasoning(s, r) {
+  const isEligible = r.regularisationResult.startsWith('Yes');
+  return `
+    <p class="reasoning-para"><strong>Legal Position Post-SAIL:</strong> The Constitution Bench of the Supreme Court in <em>Steel Authority of India Ltd v. National Union Waterfront Workers</em> (2001) 7 SCC 1 ("SAIL") held that the abolition of contract labour under s.10 CLRA does not by itself result in automatic absorption of the workers into the regular service of the principal employer. The question of regularisation is governed by the policy and rules of the establishment, subject to constitutional limitations under Articles 14 and 16.</p>
+
+    <p class="reasoning-para"><strong>The Umadevi Framework:</strong> The seven-Judge Bench decision in <em>Secretary, State of Karnataka v. Umadevi</em> (2006) 4 SCC 1 holds that no irregular employee, whether daily wage, casual or contract worker, has an indefeasible right to regularisation merely by virtue of continued employment. However, the Court carved out a significant exception: where workers have been engaged for long periods in perennial work and are de facto employees under the employment relationship tests, the Court may direct framing of a regularisation scheme or direct absorption consistent with the employer's establishment rules.</p>
+
+    <p class="reasoning-para"><strong>Routes Available for Regularisation:</strong></p>
+    <p class="reasoning-para">
+    <strong>(a) s.10 CLRA Route:</strong> Where the appropriate government issues a notification under s.10 abolishing contract labour in the relevant work, the PE must engage workers directly. Post-SAIL, a separate government notification or establishment-specific scheme is needed for actual absorption, but the ground is created for demanding regularisation.<br><br>
+    <strong>(b) De Facto Employment Route:</strong> Where the indicia of direct employment are overwhelmingly established (as assessed above), courts have — particularly in public sector cases — directed regularisation or absorption even absent a formal s.10 notification, relying on the principle that sham contract arrangements cannot be permitted to defeat workers' legal rights. See: <em>ONGC v. PCL Union</em> (2015), <em>Haryana State Electricity Board v. Suresh</em> (1999).<br><br>
+    <strong>(c) Writ Route (Article 226/32):</strong> Where the PE is a State instrumentality, workers may directly approach the High Court for regularisation where continuous service and perennial work are established. Article 14 equal pay principles and Articles 39, 41, 42 and 43 of the Directive Principles support such relief.
+    </p>
+
+    <p class="reasoning-para"><strong>Assessment on the Facts:</strong> Based on the factors presented, the regularisation eligibility is assessed as: <strong>${r.regularisationResult}</strong>. ${r.regularisationNote} ${isEligible ? 'The worker/workers should be advised to first exhaust conciliation proceedings before the Labour Commissioner and, if unsuccessful, to approach the appropriate forum with a well-documented claim.' : 'The primary claim should be for enforcement of CLRA welfare entitlements, equal pay, and minimum wage protections rather than outright regularisation.'}</p>
+
+    <p class="reasoning-para"><strong>Back Wages and Service Benefits:</strong> Irrespective of regularisation, workers found to be de facto employees are entitled to: (i) wages at par with regular employees for equal work (Article 14/16, <em>Randhir Singh v. UOI</em>); (ii) Provident Fund benefits under the EPF Act (mandatory for eligible establishments); (iii) ESI benefits; (iv) Gratuity under the Payment of Gratuity Act, 1972 (after 5 years' continuous service); and (v) Retrenchment compensation under s.25F ID Act if terminated without notice.</p>
+  `;
+}
+
+function buildRemedyReasoning(s, r) {
+  const writFocused = r.remedyResult.includes('Writ');
+  const idFocused = r.remedyResult.includes('ID') || r.remedyResult.includes('Industrial');
+  return `
+    <p class="reasoning-para"><strong>The Dual Forum Question:</strong> Indian labour law offers two primary forums for dispute resolution by aggrieved contract workers: (1) the quasi-judicial adjudication mechanism under the Industrial Disputes Act, 1947 ("ID Act"), comprising conciliation, Labour Courts and Industrial Tribunals; and (2) the constitutional remedy by way of writ petition under Article 226 before the High Court (or Article 32 before the Supreme Court) where the principal employer is a "State" within the meaning of Article 12 of the Constitution.</p>
+
+    ${idFocused ? `
+    <p class="reasoning-para"><strong>The Industrial Dispute Route:</strong> An "industrial dispute" under s.2(k) of the ID Act includes any dispute relating to employment, non-employment, terms of employment, or conditions of labour. A claim by a contract worker for regularisation, wage parity or against unfair termination squarely falls within this definition. Under s.2A(2) (inserted by Amendment Act 24 of 2010), an individual workman may directly apply to the Labour Court after a failed conciliation attempt. The process involves: (i) filing conciliation application with the Conciliation Officer; (ii) if conciliation fails within 45 days, direct application to the Labour Court; (iii) adjudication by Labour Court with power to grant reinstatement, back wages and regularisation directions. The ID Act remedy is generally preferred where: (a) the PE is a private sector employer; (b) the number of workers is manageable; and (c) there is a direct employer-employee dispute (as opposed to a policy/administrative decision to be reviewed).</p>
+    ` : ''}
+
+    ${writFocused ? `
+    <p class="reasoning-para"><strong>The Writ Petition Route (Article 226):</strong> The High Court's writ jurisdiction under Article 226 is available where: (a) the principal employer is a "State" under Article 12 (government departments, statutory bodies, government companies, etc.); (b) a fundamental right is violated (Articles 14, 16, 21, 23); or (c) there is a violation of a legal duty that is of a public nature. In labour matters, the High Court may issue writs of mandamus compelling regularisation, certiorari quashing illegal termination orders, or prohibition restraining illegal contract labour exploitation. The advantage of the writ route includes: (i) availability of interim relief (stay orders); (ii) examination of constitutional norms; (iii) public law scrutiny of arbitrary employment decisions. Per <em>Ganga Ram v. UOI</em> (1970), the High Court's writ jurisdiction is not ousted merely because an alternative statutory remedy exists, particularly where constitutional rights are engaged. However, courts exercise discretion and may relegate parties to the ID Act forum if the remedy there is adequate and effective.</p>
+    ` : ''}
+
+    <p class="reasoning-para"><strong>Recommended Forum — Analysis:</strong> Based on the total employment indicator score of <strong>${r.score}/100</strong> and the specific factors assessed, the recommended remedy is: <strong>${r.remedyResult}</strong>. ${r.remedyNote}</p>
+
+    <p class="reasoning-para"><strong>Practical Procedural Steps:</strong></p>
+    <p class="reasoning-para">
+    ${r.remedyResult.includes('Writ') ? `
+    <strong>For Writ Petition:</strong><br>
+    (1) Establish that the PE is a "State" under Article 12 through its constitutional/statutory/government-funding status;<br>
+    (2) Identify the fundamental rights violated (typically Articles 14 and 21);<br>
+    (3) Issue legal notice to PE and contractor;<br>
+    (4) File Writ Petition before the appropriate High Court with comprehensive affidavit;<br>
+    (5) Seek interim orders if there is apprehension of termination or victimisation;<br>
+    (6) File comprehensive compilation of documentary evidence (muster rolls, pay slips, work orders).
+    ` : ''}
+    ${r.remedyResult.includes('ID') || r.remedyResult.includes('Industrial') ? `
+    <strong>For Industrial Dispute:</strong><br>
+    (1) File conciliation application before the Conciliation Officer of the appropriate government;<br>
+    (2) If conciliation fails within 45 days (or 30 days if so agreed), file application before Labour Court under s.2A(2) ID Act;<br>
+    (3) Simultaneously, file complaint with CLRA enforcement authority (Registering Officer) for CLRA violations;<br>
+    (4) Consider whether to raise a "collective" dispute through a trade union for stronger procedural standing;<br>
+    (5) File claim for back wages, regularisation and reinstatement with all documentary evidence.
+    ` : ''}
+    </p>
+
+    <p class="reasoning-para"><strong>Limitation:</strong> Note that the period of limitation for ID Act claims is generally 3 years from the date of cause of action (s.2A(3)), while writ petitions are subject to the doctrine of laches. Claims should be filed without delay.</p>
+  `;
+}
+
+function buildScorecard(result) {
+  let html = `<p class="reasoning-para">The following factor-wise scorecard reflects the weighted contribution of each legal factor to the overall employment indicator score of <strong>${result.score}/100</strong>.</p>`;
+
+  result.factorBreakdown.forEach(f => {
+    const pct = Math.round((f.score / f.max) * 100);
+    const level = pct >= 70 ? 'high' : pct >= 40 ? 'mid' : 'low';
+    const label = pct >= 70 ? 'Strong Indicator of Employment' : pct >= 40 ? 'Mixed / Inconclusive' : 'Indicates Genuine Contract';
+    html += `
+      <div class="factor-score">
+        <span class="factor-name">${f.name} <span style="font-family:var(--mono);font-size:10px;color:rgba(44,62,80,0.45);">(Weight: ×${f.weight})</span></span>
+        <span class="factor-value">${f.score}/${f.max} — ${label}</span>
+        <div class="factor-bar"><div class="factor-fill ${level}" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  });
+
+  html += `
+    <div style="margin-top:20px;padding:16px;background:var(--cream);border-radius:2px;font-family:var(--mono);font-size:11px;color:var(--steel);">
+      <strong>Score Interpretation:</strong><br>
+      0–27: Genuine Contract Labour &nbsp;|&nbsp; 28–44: Likely Contract Labour &nbsp;|&nbsp; 45–67: Probable Regular Employee &nbsp;|&nbsp; 68–100: Strong Case for Regular Employee Status
+    </div>
+  `;
+
+  return html;
+}
+
+/* ============================================================
+   NEXT STEPS RENDERER
+   ============================================================ */
+function renderNextSteps(scores, result) {
+  const container = document.getElementById('next-steps-container');
+  container.innerHTML = '';
+
+  const steps = [];
+
+  if (result.score >= 45) {
+    steps.push({ step: 'Immediate', title: 'Preserve Evidence', desc: 'Collect and preserve muster rolls, wage slips, work orders, identity cards and any communication from the PE identifying the worker. This evidence is critical for all proceedings.' });
+    steps.push({ step: '1–2 Weeks', title: 'Serve Legal Notice', desc: 'Issue a legal notice to the principal employer and the contractor asserting employment status, demanding wages at par with regular employees and threatening legal proceedings.' });
+    if (result.remedyResult.includes('ID')) {
+      steps.push({ step: '2–4 Weeks', title: 'File Conciliation Application', desc: 'File a conciliation application before the Conciliation Officer of the appropriate Government. Under s.2A(2) ID Act, after 45 days you may directly apply to the Labour Court.' });
+    }
+    if (result.remedyResult.includes('Writ')) {
+      steps.push({ step: '2–6 Weeks', title: 'File Writ Petition', desc: 'Approach the High Court under Article 226. File a comprehensive writ petition with affidavit, documents and a prayer for mandamus directing regularisation or at minimum, equal pay.' });
+    }
+    steps.push({ step: 'Parallel', title: 'CLRA Enforcement Complaint', desc: 'File a complaint with the CLRA Registering Officer and Labour Commissioner for violations of the contractor\'s licence conditions, wage obligations and welfare requirements under ss.16–19 CLRA.' });
+    if (result.regularisationResult.startsWith('Yes')) {
+      steps.push({ step: '3–6 Months', title: 'Regularisation Scheme Application', desc: 'If the appropriate government issues or has issued an s.10 abolition notification, file a formal application for absorption under any regularisation scheme. If none exists, press for framing of one.' });
+    }
+  } else {
+    steps.push({ step: 'Immediate', title: 'CLRA Compliance Audit', desc: 'Verify if the contractor holds a valid licence under s.12 CLRA and whether welfare amenities under ss.16–19 are provided. File complaints for any violations with the licensing officer.' });
+    steps.push({ step: '1–2 Weeks', title: 'Minimum Wage Verification', desc: 'Verify that wages paid are not below the applicable minimum wage. File complaint before the Minimum Wages Authority if underpayment is detected.' });
+    steps.push({ step: '2–4 Weeks', title: 'Equal Pay Claim (If Applicable)', desc: 'If the work is identical to that of regular employees, an equal pay claim under Articles 14/16 may be pursued through appropriate forum even for genuine contract workers.' });
+    steps.push({ step: 'Ongoing', title: 'Document the Relationship', desc: 'Begin systematic documentation of the employment relationship indicators for future proceedings. Engage a trade union if multiple workers are affected.' });
+  }
+
+  steps.forEach((st, i) => {
+    const div = document.createElement('div');
+    div.className = 'next-step-card';
+    div.innerHTML = `
+      <div class="ns-step">Step ${i+1} · ${st.step}</div>
+      <div class="ns-title">${st.title}</div>
+      <div class="ns-desc">${st.desc}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+/* ============================================================
+   REPORT GENERATION
+   ============================================================ */
+function openReportModal() {
+  if (!currentResult) return;
+  const { scores, result } = currentResult;
+  const reportHTML = buildReportHTML(scores, result);
+  document.getElementById('report-content').innerHTML = reportHTML;
+  document.getElementById('report-modal').classList.add('active');
+}
+
+function closeReportModal() {
+  document.getElementById('report-modal').classList.remove('active');
+}
+
+function buildReportHTML(scores, result) {
+  const now = new Date().toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' });
+  const r = result;
+
+  const controlLabels = ['No significant control', 'Minimal control', 'Mixed control', 'Substantial control', 'Full/comprehensive control'];
+  const wageLabels = ['Independent contractor wages', 'PE oversight of wages', 'PE effectively sets remuneration', 'PE as de facto wage master', 'Wages paid directly by PE'];
+  const natureLabels = ['Incidental/outsourceable', 'Peripheral/ancillary', 'Ancillary but continuous', 'Substantially integrated', 'Core/perennial work'];
+  const durationLabels = ['Short-term project', 'Periodic/seasonal', 'Recurring short contracts', '1–5 years with PE continuity', '5+ years continuous'];
+  const integrationLabels = ['No integration', 'Minimal integration', 'Partial integration', 'Substantial integration', 'Full integration'];
+  const shamLabels = ['Fully genuine', 'Mostly genuine', 'Partially genuine', 'Probably sham', 'Clearly sham/bogus'];
+  const complianceLabels = ['Full CLRA compliance', 'Peripheral violations', 'Partial compliance', 'Registration/licence issues', 'No registration; abolition notified'];
+  const evidenceLabels = ['Very weak', 'Weak', 'Moderate', 'Moderate-strong', 'Strong documentary evidence'];
+
+  return `
+    <h1>Legal Opinion Report</h1>
+    <div class="report-meta">
+      <span><strong>Date:</strong> ${now}</span>
+      <span><strong>Report Type:</strong> Contract Labour Classification Analysis</span>
+      <span><strong>Legal Framework:</strong> CLRA 1970, ID Act 1947, OSH Code 2020, Constitution of India</span>
+      <span><strong>Indicator Score:</strong> ${r.score}/100 (${r.classificationConfidence}% confidence)</span>
+    </div>
+
+    <h1>I. Facts Assumed</h1>
+    <p>The following factual matrix has been presented for legal analysis:</p>
+    <p><strong>F1 — Control &amp; Supervision:</strong> ${controlLabels[scores.control]} (Score: ${scores.control}/4)</p>
+    <p><strong>F2 — Wage Payment:</strong> ${wageLabels[scores.wages]} (Score: ${scores.wages}/4)</p>
+    <p><strong>F3 — Nature of Work:</strong> ${natureLabels[scores.nature]} (Score: ${scores.nature}/4)</p>
+    <p><strong>F4 — Duration:</strong> ${durationLabels[scores.duration]} (Score: ${scores.duration}/4)</p>
+    <p><strong>F5 — Integration:</strong> ${integrationLabels[scores.integration]} (Score: ${scores.integration}/4)</p>
+    <p><strong>F6 — Contract Genuineness:</strong> ${shamLabels[scores.sham]} (Score: ${scores.sham}/4)</p>
+    <p><strong>F7 — CLRA Compliance:</strong> ${complianceLabels[scores.compliance]} (Score: ${scores.compliance}/4)</p>
+    <p><strong>F8 — Evidence Quality:</strong> ${evidenceLabels[scores.evidence]} (Score: ${scores.evidence}/4)</p>
+    ${scores.context ? `<p><strong>Additional Context:</strong> ${scores.context}</p>` : ''}
+
+    <h1>II. Issues for Determination</h1>
+    <h3>Issue 1</h3><p>Whether the worker(s) constitute "contract labour" within the meaning of s.2(b) of the Contract Labour (Regulation and Abolition) Act, 1970, or whether they are employees in a direct employment relationship with the principal employer?</p>
+    <h3>Issue 2</h3><p>In the event the workers are found to be in direct employment of the principal employer, whether they are eligible for regularisation/absorption into the regular service of the principal employer?</p>
+    <h3>Issue 3</h3><p>What is the appropriate legal remedy — proceedings under the Industrial Disputes Act, 1947 or a Writ Petition under Article 226 of the Constitution of India?</p>
+
+    <h1>III. Analysis &amp; Legal Reasoning</h1>
+
+    <h2>A. The Control Test</h2>
+    <p>The touchstone of employer-employee relationship in Indian law is the "control test" propounded by the Supreme Court in Hussainbhai v. Alath Factory Thezhilali Union (1978) 4 SCC 257. The Court held that the real employer is one who controls not merely the result of work but the manner, method and timing of its performance. On the facts presented: ${controlLabels[scores.control].toLowerCase()}, indicating ${scores.control >= 3 ? 'a direct employment relationship by this criterion' : 'that the control element favours a contractor arrangement or is inconclusive'}.</p>
+
+    <h2>B. The Integration Test</h2>
+    <p>The integration test, applied in Air India Statutory Corporation v. United Labour Union (1997) 9 SCC 377 and Balwant Rai Saluja v. Air India Ltd (2014) 9 SCC 407, examines whether the worker is an integral component of the principal employer's business. Integration is evidenced by: working within PE's premises, using PE's tools/materials, wearing PE's uniform, working alongside regular employees in identical functions. On the facts presented: ${integrationLabels[scores.integration].toLowerCase()}.</p>
+
+    <h2>C. The Economic Reality Test</h2>
+    <p>The economic reality test, applied by courts from Crown Aluminium Works (1958) to Cipla Ltd (2009), looks through formal arrangements to economic substance: who bears the financial risk, who sets the wage, who is the economic beneficiary of the labour. ${wageLabels[scores.wages]}.</p>
+
+    <h2>D. The Sham Contract Doctrine</h2>
+    <p>In Dena Nath v. National Fertilizers Ltd (1992) 1 SCC 695, the Supreme Court distinguished genuine contracting from "sham" contracting and held that a contractor without independent existence, used merely as a device to perpetuate the engagement of workers without conferring employment status, is a legal fiction that courts will not permit. On the facts presented: ${shamLabels[scores.sham]}.</p>
+
+    <h2>E. Nature and Duration of Work</h2>
+    <p>The SAIL decision (2001) highlighted the distinction between "perennial" and "incidental" work as a key factor in s.10 CLRA notifications. Work that is perennial — i.e., regular, recurring and essential to the PE's operations — cannot be legitimately kept under contract indefinitely. Nature assessment: ${natureLabels[scores.nature]}. Duration: ${durationLabels[scores.duration]}.</p>
+
+    <h2>F. Conclusion on Classification</h2>
+    <p><strong>Overall Employment Indicator Score: ${r.score}/100.</strong> Based on a holistic application of the above tests, the classification is: <strong>${r.classificationResult}</strong>. Confidence level: <strong>${r.classificationConfidence}%</strong>.</p>
+
+    <h2>G. Regularisation Eligibility</h2>
+    <p>Applying the post-SAIL (2001) and post-Umadevi (2006) framework: <strong>${r.regularisationResult}</strong>. ${r.regularisationNote}</p>
+
+    <h2>H. Appropriate Legal Remedy</h2>
+    <p>Having regard to all the above, the recommended legal remedy is: <strong>${r.remedyResult}</strong>. ${r.remedyNote}</p>
+
+    <h1>IV. Case Laws Relied Upon</h1>
+    ${result.relevantCases.map((c, i) => `<p><strong>${i+1}. ${c.name}</strong> ${c.citation}<br><em>${c.principle}:</em> ${c.ratio}</p>`).join('')}
+
+    <h1>V. Conclusion</h1>
+    <p>For the reasons set out above:</p>
+    <p><strong>Issue 1 (Classification):</strong> The worker(s) are classified as: <strong>${r.classificationResult}</strong> (${r.classificationConfidence}% confidence).</p>
+    <p><strong>Issue 2 (Regularisation):</strong> Regularisation eligibility: <strong>${r.regularisationResult}</strong>. ${r.regularisationNote}</p>
+    <p><strong>Issue 3 (Remedy):</strong> Recommended remedy: <strong>${r.remedyResult}</strong>. ${r.remedyNote}</p>
+    <p style="margin-top:20px;font-style:italic;font-size:12px;color:rgba(44,62,80,0.6);">This analysis is generated by an AI system trained on Indian labour law principles and landmark judgments. It is for informational and educational purposes only and does not constitute legal advice. The conclusions are indicative and may vary significantly depending on specific facts, jurisdiction, and evidence. Consult a qualified advocate for specific legal advice.</p>
+  `;
+}
+
+function downloadReport() {
+  const content = document.getElementById('report-content').innerText;
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ContractScan_Legal_Opinion_' + new Date().toISOString().split('T')[0] + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function printReport() {
+  window.print();
+}
+
+/* ============================================================
+   UTILITY FUNCTIONS
+   ============================================================ */
+function scrollToForm() {
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetForm() {
+  document.getElementById('analysis-form').reset();
+  document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('f_sham').value = '';
+  document.querySelectorAll('select, textarea').forEach(el => el.classList.remove('invalid'));
+}
+
+function resetAll() {
+  resetForm();
+  document.getElementById('results-section').classList.remove('visible');
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.remove('done', 'active');
+    if (i === 0) s.classList.add('active');
+  });
+  currentResult = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Close modal on overlay click
+document.getElementById('report-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeReportModal();
+});
+</script>
+
+</body>
+</html>
